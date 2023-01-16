@@ -19,6 +19,7 @@ class ComplaintModel extends CI_Model
 public function get($id) {
       return $this->db->where('ticket_id', $id)->get('complaint')->row();
 }
+    
 
 public function Update($data, $id)
 {

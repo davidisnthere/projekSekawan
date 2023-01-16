@@ -1,3 +1,6 @@
+<?php
+$this->load->view('include/loader');
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,7 +20,7 @@
 <div class="col-md-9">
 <h3>Update Data</h3>
 <hr>
-<form method="post" action="<?php echo base_url(); ?>index.php/Complaint/update" enctype="multipart/form-data" id="form1"> 
+<form method="post" action="<?php echo base_url(); ?>/Complaint/update" enctype="multipart/form-data" id="form1"> 
 <input type="hidden" name="ticket_id" value="<?php echo $complaint->ticket_id; ?>">
 <div class="form-group">
 	<label>Nama</label>

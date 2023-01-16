@@ -2,12 +2,18 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Complaint extends CI_Controller {
-    
-    function __construct(){
+
+    function __construct()
+    {
         parent::__construct();
         $this->load->model('ComplaintModel');
+        $this->load->model('AuthModel');
 
+        if (!$this->AuthModel-> current_user()) {
+            redirect('auth/login');
+        }
     }
+    
 
 	public function index()
 	{
@@ -23,22 +29,23 @@ class Complaint extends CI_Controller {
 }
 public function simpanData()
 {
-  $this->load->model('ComplaintModel');
-  $name = $this->input->post('name');
-  $description = $this->input->post('description');
-  $category = $this->input->post('category');
-  $image = $_FILES["image"]["tmp_name"];
-  
-  $path = "upload/";
-  $imagePath = $path . $name . "_complaint.png";
-  move_uploaded_file($image, $imagePath);
+    $this->load->model('ComplaintModel');
 
-$data = [
- 'name' => $name,
- 'description' => $description,
- 'category_id' => $category,
- 'image' => base_url() . $imagePath,
-];
+            $name = $this->input->post('name');
+            $description = $this->input->post('description');
+            $category = $this->input->post('category');
+            $image = $_FILES["image"]["tmp_name"];
+
+            $path = "upload/";
+            $imagePath =  $path . $name . time() . "_complaint.png";
+            move_uploaded_file($image, $imagePath);
+
+            $data = [
+                'name' => $name,
+                'description' => $description,
+                'category_id' => $category,
+                'image' => base_url() . $imagePath,
+            ];
 
 $simpan = $this->ComplaintModel->insert($data);
 
@@ -59,16 +66,44 @@ public function edit($id)
     $this->load->view('update', $data);
 }
 public function update(){
-    $this->load->model('ComplaintModel');
-    $id = $this->input->post('ticket_id');
-    $name = $this->input->post('name');
-    $description = $this->input->post('description');
-    $category = $this->input->post('category');
-$data = [
-    'name' => $name,
-    'description' => $description,
-    'category_id' => $category
-];
+    {
+        $this->load->model('ComplaintModel');
+        $config_logo_image = array(
+            'allowed_types' => 'jpg|jpeg|gif|png',
+            'upload_path' => 'upload/',//root path for image
+            'max_size' => 2000,
+            );
+    
+        $this->load->library('upload', $config_logo_image );
+            if ($this->upload->do_upload('image')) {
+                $id = $this->input->post('ticket_id');
+                $name = $this->input->post('name');
+                $description = $this->input->post('description');
+                $category = $this->input->post('category');
+                $image = $_FILES["image"]["tmp_name"];
+    
+                $path = "upload/";
+                $imagePath =  $path . $name . time() . "_complaint.png";
+                move_uploaded_file($image, $imagePath);
+    
+                $data = [
+                    'name' => $name,
+                    'description' => $description,
+                    'category_id' => $category,
+                    'image' => base_url() . $imagePath,
+                ];
+            } else {
+                $id = $this->input->post('ticket_id');
+                $name = $this->input->post('name');
+                $description = $this->input->post('description');
+                $category = $this->input->post('category');
+    
+                $data = [
+                    'name' => $name,
+                    'description' => $description,
+                    'category_id' => $category
+                ];
+            }
 
  $save = $this->ComplaintModel->update($data, $id);
  if($save) {
@@ -76,7 +111,8 @@ $data = [
   } else {
       $this->session->set_flashdata('msg_error', 'Data gagal disimpan, silakan isi ulang!');
   }
-   redirect('Complaint');
+   redirect('complaint');
+}
 }
 public function delete($id){
    $this->load->model('ComplaintModel');
@@ -90,3 +126,4 @@ if ($delete) {
    redirect('Complaint');
 }
 }
+
